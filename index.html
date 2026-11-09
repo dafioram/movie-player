@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Movie Player</title>
+  <meta name="description" content="A private movie player that runs in Chrome. Plays local files with switchable audio tracks and subtitles. Nothing leaves your computer.">
+  <meta name="theme-color" content="#0b0c0f">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/player.css">
+  <link rel="modulepreload" href="js/app.js">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.4-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><rect x="5.5" y="4" width="4.5" height="16" rx="1"/><rect x="14" y="4" width="4.5" height="16" rx="1"/></symbol>
+      <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 9.5h3.2L12 5.2v13.6l-4.8-4.3H4z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+      <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5h3.2L12 5.2v13.6l-4.8-4.3H4z"/><path d="M16 9.5l5 5m0-5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+      <symbol id="i-audio" viewBox="0 0 24 24"><path d="M4 13v-1a8 8 0 0 1 16 0v1" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="13" width="5" height="7" rx="1.5"/><rect x="16" y="13" width="5" height="7" rx="1.5"/></symbol>
+      <symbol id="i-subs" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 13.5h5M13 13.5h5M6 16h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+      <symbol id="i-chapters" viewBox="0 0 24 24"><path d="M4 6h3M10 6h10M4 12h3M10 12h10M4 18h3M10 18h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+      <symbol id="i-speed" viewBox="0 0 24 24"><path d="M4.5 17a8 8 0 1 1 15 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 15.5l4-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15.5" r="1.8"/></symbol>
+      <symbol id="i-aspect" viewBox="0 0 24 24"><path d="M3 8V5.5A1.5 1.5 0 0 1 4.5 4H8M16 4h3.5A1.5 1.5 0 0 1 21 5.5V8M21 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H4.5A1.5 1.5 0 0 1 3 18.5V16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="7" y="8" width="10" height="8" rx="1"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.25"/></symbol>
+      <symbol id="i-pip" viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="12" y="11.5" width="7" height="5.5" rx="1"/></symbol>
+      <symbol id="i-fullscreen" viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-exit-fullscreen" viewBox="0 0 24 24"><path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-open" viewBox="0 0 24 24"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2h8.5A1.5 1.5 0 0 1 21 9.5v8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+      <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18.5" cy="12" r="1.8"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-film" viewBox="0 0 48 48"><rect x="6" y="9" width="36" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M6 17h36M6 31h36M14 9v8M24 9v8M34 9v8M14 31v8M24 31v8M34 31v8" stroke="currentColor" stroke-width="2.5"/><path d="M21 20.5v7l6-3.5z"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17.3" r="1.2"/></symbol>
+    </defs>
+  </svg>
+
+  <div id="app" class="empty" data-state="empty">
+    <div id="stage">
+      <video id="video" playsinline preload="auto"></video>
+      <div id="overlay" aria-live="off">
+        <canvas class="sub-bitmap"></canvas>
+        <div class="sub-second"></div>
+        <div class="sub-main"></div>
+      </div>
+      <div id="spinner" hidden><div class="ring"></div><div class="spinner-text"></div></div>
+      <div id="flash" aria-hidden="true"><svg><use href="#i-play"/></svg></div>
+      <button id="big-play" class="big-play" hidden aria-label="Play"><svg><use href="#i-play"/></svg></button>
+    </div>
+
+    <header id="topbar">
+      <div class="title" id="title"></div>
+      <div id="status-line" class="status-line"></div>
+    </header>
+
+    <section id="empty" aria-label="Open a movie">
+      <div class="empty-inner">
+        <div class="brand"><svg class="brand-mark"><use href="#i-film"/></svg><span>Movie Player</span></div>
+        <div id="continue" class="continue" hidden>
+          <div class="continue-label">Continue watching</div>
+          <div class="continue-title" id="continue-title"></div>
+          <div class="continue-time" id="continue-time"></div>
+          <div class="continue-bar"><div id="continue-progress"></div></div>
+          <div class="continue-actions">
+            <button class="btn primary" id="continue-resume">Resume</button>
+            <button class="btn" id="continue-restart">Start over</button>
+            <button class="btn ghost" id="continue-forget">Forget</button>
+          </div>
+        </div>
+        <div id="dropzone" class="dropzone">
+          <p class="drop-title">Drop a movie, its subtitles and audio files, or a zip</p>
+          <div class="drop-actions">
+            <button class="btn primary" id="open-file"><svg><use href="#i-open"/></svg>Open file</button>
+            <button class="btn" id="open-folder">Open folder</button>
+          </div>
+          <p class="privacy">Files never leave your computer.</p>
+        </div>
+        <p class="formats">MP4 · MKV · WebM · MOV · VOB · MPG · TS · M2TS &nbsp;—&nbsp; SRT · VTT · ASS · PGS · VobSub &nbsp;—&nbsp; <a href="help.html" target="_blank" rel="noopener">Help</a></p>
+      </div>
+    </section>
+
+    <div id="controls" class="controls">
+      <div class="seek" id="seek">
+        <div class="seek-track">
+          <div class="seek-buffered" id="seek-buffered"></div>
+          <div class="seek-played" id="seek-played"></div>
+          <div class="seek-chapters" id="seek-chapters"></div>
+          <div class="seek-thumb" id="seek-thumb"></div>
+        </div>
+        <div class="preview" id="preview" hidden>
+          <canvas id="preview-canvas" width="160" height="90"></canvas>
+          <div class="preview-chapter" id="preview-chapter"></div>
+          <div class="preview-time" id="preview-time"></div>
+        </div>
+      </div>
+      <div class="bar">
+        <div class="left">
+          <button class="icon" id="btn-play" aria-label="Play" data-tip="Play (Space)"><svg><use href="#i-play"/></svg></button>
+          <div class="volume">
+            <button class="icon" id="btn-mute" aria-label="Mute" data-tip="Mute"><svg><use href="#i-volume"/></svg></button>
+            <input type="range" id="volume" min="0" max="1" step="0.01" value="1" aria-label="Volume">
+          </div>
+          <button class="time" id="time" data-tip="Show remaining time"><span id="time-cur">0:00</span> <span class="sep">/</span> <span id="time-total">0:00</span></button>
+        </div>
+        <div class="right">
+          <button class="icon" id="btn-audio" aria-label="Audio" data-menu="audio" data-tip="Audio"><svg><use href="#i-audio"/></svg></button>
+          <button class="icon" id="btn-subs" aria-label="Subtitles" data-menu="subs" data-tip="Subtitles"><svg><use href="#i-subs"/></svg><span class="dot" id="subs-dot" hidden></span></button>
+          <button class="icon" id="btn-chapters" aria-label="Chapters" data-menu="chapters" data-tip="Chapters" hidden><svg><use href="#i-chapters"/></svg></button>
+          <button class="icon text" id="btn-speed" aria-label="Speed" data-menu="speed" data-tip="Speed"><span id="speed-label">1×</span></button>
+          <button class="icon" id="btn-aspect" aria-label="Aspect" data-menu="aspect" data-tip="Picture size"><svg><use href="#i-aspect"/></svg></button>
+          <button class="icon" id="btn-info" aria-label="Details" data-tip="Details"><svg><use href="#i-info"/></svg></button>
+          <button class="icon" id="btn-pip" aria-label="Picture in picture" data-tip="Picture in picture"><svg><use href="#i-pip"/></svg></button>
+          <button class="icon" id="btn-more" aria-label="More" data-menu="more" data-tip="More"><svg><use href="#i-more"/></svg></button>
+          <button class="icon" id="btn-fullscreen" aria-label="Full screen" data-tip="Full screen"><svg><use href="#i-fullscreen"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <div id="menu" class="menu" role="menu" hidden></div>
+
+    <aside id="details" class="details" hidden aria-label="Details">
+      <div class="details-head">
+        <h2>Details</h2>
+        <div>
+          <button class="btn small" id="details-copy">Copy</button>
+          <button class="icon small" id="details-close" aria-label="Close"><svg><use href="#i-close"/></svg></button>
+        </div>
+      </div>
+      <div class="details-body" id="details-body"></div>
+    </aside>
+
+    <div id="notices" class="notices" aria-live="polite"></div>
+
+    <div id="dialog" class="dialog-backdrop" hidden>
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+        <div class="dialog-icon" id="dialog-icon"></div>
+        <h2 id="dialog-title"></h2>
+        <div id="dialog-body"></div>
+        <div class="dialog-actions" id="dialog-actions"></div>
+      </div>
+    </div>
+
+    <div id="drop-hint" class="drop-hint" hidden><div>Drop to open</div></div>
+    <div id="update" class="update" hidden>Update available <button class="btn small primary" id="update-reload">Reload</button></div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

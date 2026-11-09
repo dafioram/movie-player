@@ -1,0 +1,32 @@
+# Dependencies and build output
+node_modules/
+tools/avcore/.build/
+
+# Test media (keep movies out of the repository)
+media/
+test-media/
+*.mkv
+*.mp4
+*.m4v
+*.mov
+*.webm
+*.vob
+*.mpg
+*.mpeg
+*.ts
+*.m2ts
+*.mts
+*.avi
+*.sup
+*.srt
+*.ass
+*.idx
+*.sub
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.log

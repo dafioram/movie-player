@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Help — Movie Player</title>
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; background: #0b0c0f; color: #eceae4; font: 15px/1.6 "Inter", "Segoe UI", system-ui, sans-serif; }
+    main { max-width: 760px; margin: 0 auto; padding: 40px 24px 80px; }
+    h1 { font-size: 26px; margin: 0 0 6px; }
+    h2 { font-size: 18px; margin: 36px 0 8px; color: #f2b544; }
+    p, li { color: #d6d3ca; }
+    a { color: #f2b544; }
+    code, pre { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+    code { background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; }
+    pre { background: #15171d; border: 1px solid rgba(255,255,255,0.09); border-radius: 8px; padding: 12px 14px; overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 14px; }
+    th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.09); vertical-align: top; }
+    th { color: #9a9890; font-weight: 600; }
+    .muted { color: #9a9890; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Movie Player help</h1>
+  <p class="muted">Everything happens on your computer. Files are read locally and never uploaded.</p>
+
+  <h2>Opening a movie</h2>
+  <ul>
+    <li>Drop a movie onto the window, together with any subtitle, audio or font files. Or use <b>Open file</b> / <b>Open folder</b>.</li>
+    <li>A zip works like a folder, as long as the video inside is stored <b>without compression</b>.</li>
+    <li>Drop extra subtitle or audio files onto a movie that is already playing to add them as tracks.</li>
+    <li>Install the app (the install icon in Chrome's address bar) to open video files with “Open with → Movie Player”.</li>
+    <li>Space plays and pauses. Everything else is in the control bar.</li>
+  </ul>
+
+  <h2>Naming companion files</h2>
+  <p>Files are matched to the movie by name, and tags after the name become the track label:</p>
+  <table>
+    <tr><th>File</th><th>Shown as</th></tr>
+    <tr><td><code>Movie.2019.en.srt</code></td><td>English</td></tr>
+    <tr><td><code>Movie.2019.es.forced.srt</code></td><td>Spanish (Forced)</td></tr>
+    <tr><td><code>Movie.2019.English.SDH.srt</code></td><td>English, SDH</td></tr>
+    <tr><td><code>Movie.2019.fre.commentary.m4a</code></td><td>French, commentary</td></tr>
+    <tr><td><code>Movie.2019.pt-BR.ass</code></td><td>Portuguese (Brazil)</td></tr>
+  </table>
+
+  <h2>What plays</h2>
+  <table>
+    <tr><th></th><th>Supported</th><th>Not supported</th></tr>
+    <tr><td>Containers</td><td>MP4, M4V, MOV, WebM, MKV, MPG, VOB, TS, M2TS</td><td>AVI, WMV, FLV, ISO images, DVD folders</td></tr>
+    <tr><td>Video</td><td>H.264, VP8, VP9, AV1, HEVC (with a hardware decoder), MPEG-1/2 (converted)</td><td>VC-1, DivX/Xvid (MPEG-4 Part 2)</td></tr>
+    <tr><td>Audio</td><td>AAC, Opus, MP3, FLAC, Vorbis, PCM; AC3, E-AC3, DTS, TrueHD, MP2 and DVD LPCM are converted</td><td>DTS-HD MA lossless layer (its DTS core plays)</td></tr>
+    <tr><td>Subtitles</td><td>SRT, VTT, ASS/SSA, PGS (.sup), VobSub (.idx + .sub), embedded in MKV or VOB</td><td>DVB subtitles, Teletext, MicroDVD .sub</td></tr>
+  </table>
+
+  <h2 id="wont-play">My file won't play</h2>
+  <p>The error message says which part failed. Two free tools fix almost everything:
+    <a href="https://handbrake.fr/" target="_blank" rel="noopener">HandBrake</a> (point and click) and
+    <a href="https://ffmpeg.org/download.html" target="_blank" rel="noopener">ffmpeg</a> (command line).</p>
+  <p><b>Container not supported</b> (AVI, WMV…) but the codecs are fine: repackage without re-encoding.</p>
+  <pre>ffmpeg -i "input.avi" -map 0 -c copy "output.mkv"</pre>
+  <p><b>Video codec not supported</b> (VC-1, DivX/Xvid, HEVC without hardware support): convert the video to H.264 and keep the other tracks.</p>
+  <pre>ffmpeg -i "input.mkv" -map 0 -c copy -c:v libx264 -crf 18 -preset medium "output.mkv"</pre>
+  <p>In HandBrake, choose the preset <b>Fast 1080p30</b> (or a matching resolution) and add all audio and subtitle tracks on their tabs.</p>
+  <p><b>No sound</b>: the details panel (the <b>i</b> button) shows each audio track's status. To convert one audio track to AAC:</p>
+  <pre>ffmpeg -i "input.mkv" -map 0 -c copy -c:a aac -b:a 384k "output.mkv"</pre>
+  <p><b>Compressed zip</b>: create the zip without compression.</p>
+  <pre>zip -0 -r "movie.zip" "Movie folder"</pre>
+  <p><b>Subtitles look like gibberish</b>: the file uses an unusual text encoding. Naming it with its language (for example <code>Movie.ru.srt</code>) helps the player pick the right one.</p>
+  <p><b>Choppy MPEG-2 playback</b>: conversion runs in the browser. Standard-definition DVD video is easy; 1080i TV recordings may be too heavy for some computers. The details panel shows the conversion speed; below 1.0× means the computer can't keep up.</p>
+
+  <h2>Hardware or software decoding</h2>
+  <p>The details panel reports what Chrome says about decoding the exact stream. To see the decoder Chrome actually used, paste <code>chrome://media-internals</code> into the address bar while the movie plays. If it reports software decoding because hardware acceleration is off, turn on <i>Settings → System → Use graphics acceleration when available</i> and restart Chrome.</p>
+
+  <h2>Privacy</h2>
+  <p>The app stores playback positions, preferences and the location of the last movie (not the file itself) in this browser only. Use <b>More → Clear history</b> to remove them.</p>
+  <p><a href="./">← Back to the player</a></p>
+</main>
+</body>
+</html>
